@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lab Results</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg,#161a30 0%,#2980b9 100%);
+            color: #edf7ff;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2.2rem 1rem 3rem 1rem;
+        }
+        .container {
+            background: rgba(22,26,48,0.42);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            box-shadow: 0 8px 32px rgba(30,41,101,0.21);
+            backdrop-filter: blur(16px);
+            width: 100%;
+            max-width: 900px;
+            padding: 2.2rem 2.1rem 2.8rem 2.1rem;
+            box-sizing: border-box;
+            animation: fadeIn 0.6s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(.97);}
+            to   { opacity: 1; transform: scale(1);}
+        }
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            color: #76b6ff;
+            margin: 0 0 2.1rem 0;
+        }
+        .visit-id { color: #3791ae; font-weight: 700; }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.06);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.08);
+            margin-bottom: 1.8rem;
+            user-select: none;
+        }
+        thead tr {
+            background: rgba(56,128,255,0.22);
+        }
+        th, td {
+            padding: 13px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #d0e1ff;
+            border-bottom: 1px solid rgba(255,255,255,0.13);
+        }
+        th {
+            font-size: 0.98rem;
+            letter-spacing: 1px;
+        }
+        tbody tr:hover {
+            background: rgba(56,128,255,0.13);
+        }
+        .actions {
+            display: flex;
+            gap: .9rem;
+            margin-top: 1.3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .lab-btn {
+            background: linear-gradient(90deg,#3791ae 0%,#3880ff 60%,#1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0.6rem 1.35rem;
+            font-size: 1.03rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(56,128,255,0.10);
+            letter-spacing: 1px;
+            text-decoration: none;
+            transition: background 0.2s, color 0.21s, transform 0.13s;
+            display: inline-block;
+            margin-bottom: 0.25rem;
+        }
+        .lab-btn:hover, .lab-btn:focus {
+            background: linear-gradient(90deg,#2a5caa 0%,#3880ff 100%);
+            color: #fff;
+            outline: none;
+            transform: translateY(-2px) scale(1.02);
+        }
+        @media (max-width: 700px) {
+            .container { padding: 1.3rem 0.35rem 2rem 0.35rem;}
+            th, td { padding: 0.69rem 0.7rem;}
+        }
+        @media (max-width: 500px) {
+            h2 { font-size: 1.2rem; }
+            table, thead, tbody, tr, th, td { display: block; width: 100%; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tbody tr { background: rgba(56,128,255,0.09); border-radius: 9px; margin-bottom: 1.2rem;box-shadow: 0 2px 5px rgba(56,128,255,0.05);}
+            td { padding-left: 50%; position: relative; margin-bottom: 0.7rem;}
+            td:before {
+                position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%);
+                color: #76b6ff; font-weight: 700; font-size: .97rem;
+                white-space: nowrap;
+            }
+            td:nth-of-type(1):before { content: "ID"; }
+            td:nth-of-type(2):before { content: "Test Name"; }
+            td:nth-of-type(3):before { content: "Result"; }
+            td:nth-of-type(4):before { content: "Recorded By"; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" role="main" aria-label="Lab Results">
+    <h2>
+        Lab Results for Visit ID: 
+        <span class="visit-id" th:text="${visit.id}">123</span>
+    </h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Test Name</th>
+                <th>Result</th>
+                <th>Recorded By</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="res : ${labResults}">
+                <td th:text="${res.id}">1</td>
+                <td th:text="${res.testName}">CBC</td>
+                <td th:text="${res.result}">Normal</td>
+                <td th:text="${res.recordedBy}">Dr. Smith</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="actions">
+      <div sec:authorize="hasRole('DATA_ENTRY')">
+        <a th:href="@{'/visits/' + ${visit.id} + '/lab-results/add'}" class="lab-btn">+ Add Lab Result</a>
+        <a th:href="@{/doctor/patients}" class="lab-btn">← Back to Patient List</a>
+    </div>
+</div>
+<script th:if="${noAccess}">
+        /*<![CDATA[*/
+        alert("You do not have privileges to add labresults. Please contact the administrator.");
+        /*]]>*/
+    </script>
+</body>
+</html>

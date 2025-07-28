@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8"/>
+    <title>User Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #161a30 0%, #2980b9 100%);
+        }
+        .register-glass {
+            background: rgba(22, 26, 48, 0.42);
+            box-shadow: 0 8px 32px 0 rgba(30,41,101,0.21);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(16px);
+            padding: 2.7rem 2.2rem 2rem 2.2rem;
+            width: 380px;
+            max-width: 95vw;
+            animation: fadeIn 0.7s;
+            color: #edf7ff;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(.98);}
+            to { opacity: 1; }
+        }
+        h2 {
+            color: #76b6ff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            margin-top: 0;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            font-size: 1rem;
+            color: #bdd9ff;
+            letter-spacing: 0.8px;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 0.85rem;
+            border-radius: 10px;
+            border: 1px solid #324b87;
+            background: rgba(255,255,255,0.13);
+            color: #e9ecff;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 1.35rem;
+            transition: border 0.2s, background 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        select:focus {
+            background: rgba(56,128,255,0.07);
+            border-color: #3880ff;
+        }
+        select {
+            cursor: pointer;
+        }
+        option {
+            color: #222;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 0.95rem;
+            background: linear-gradient(90deg, #3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.08rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(56,128,255,0.10);
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.15s;
+            margin-top: 0.5rem;
+        }
+        button[type="submit"]:hover,
+        button[type="submit"]:active {
+            background: linear-gradient(90deg, #2a5caa 0%, #3880ff 100%);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .login-link {
+            margin-top: 1.6rem;
+            text-align: center;
+        }
+        .login-link a {
+            color: #6ec6ff;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        .login-link a:hover,
+        .login-link a:focus {
+            color: #fff;
+            text-decoration: underline;
+            outline: none;
+        }
+        @media (max-width: 400px) {
+            .register-glass {
+                padding: 1.8rem 1.4rem 1.6rem 1.4rem;
+                width: 95vw;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="register-glass">
+    <h2>User Registration</h2>
+    <form th:action="@{/register}" method="post" th:object="${user}" autocomplete="on">
+        <label for="username">Username</label>
+        <input id="username" type="text" th:field="*{username}" placeholder="Enter username" required />
+
+        <label for="password">Password</label>
+        <input id="password" type="password" th:field="*{password}" placeholder="Enter password" required />
+
+        <label for="email">Email</label>
+        <input id="email" type="email" th:field="*{email}" placeholder="Enter email" required />
+
+        <label for="role">Role</label>
+        <select id="role" th:field="*{role}" required>
+            <option value="" disabled selected>Select Role</option>
+            <option th:each="role : ${roles}" th:value="${role}" th:text="${role}"></option>
+        </select>
+
+        <button type="submit">Register</button>
+    </form>
+    <div class="login-link">
+        <a th:href="@{/login}">Already have an account? Login here</a>
+    </div>
+</div>
+</body>
+</html>

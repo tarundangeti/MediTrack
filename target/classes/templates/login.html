@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg,#161a30 0%, #2980b9 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .login-glass {
+            background: rgba(22, 26, 48, 0.42);
+            box-shadow: 0 8px 32px 0 rgba(30,41,101,0.21);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(16px);
+            padding: 2.7rem 2.2rem 1.2rem 2.2rem;
+            width: 340px;
+            max-width: 97vw;
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(.98);}
+            to { opacity: 1; }
+        }
+        h2 {
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            margin-top: 0;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.3rem;
+        }
+        label {
+            color: #bdd9ff;
+            font-size: 1em;
+            margin-bottom: .35rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 0.85rem;
+            border-radius: 10px;
+            border: 1px solid #324b87;
+            background: rgba(255,255,255,0.13);
+            color: #e9ecff;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s, background 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            background: rgba(56,128,255,0.06);
+            border-color: #3880ff;
+        }
+        button[type="submit"] {
+            width: 100%;
+            margin-top: 1.2rem;
+            padding: 0.95rem;
+            background: linear-gradient(90deg,#3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.08rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(56,128,255,.10);
+            letter-spacing: 1px;
+            transition: background .2s,transform 0.15s;
+        }
+        button[type="submit"]:hover,
+        button[type="submit"]:active {
+            background: linear-gradient(90deg, #2a5caa 0%, #3880ff 100%);
+            transform: translateY(-2px) scale(1.022);
+        }
+        .message {
+            margin: 1rem 0 .4rem 0;
+            padding: 0.76rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .message.error {
+            background: rgba(220, 45, 89, 0.15);
+            color: #ffc2c2;
+            border: 1px solid #da2f5b;
+        }
+        .message.success {
+            background: rgba(19, 220, 45, 0.19);
+            color: #a6ffd9;
+            border: 1px solid #26b55d;
+        }
+        .register-link {
+            display: block;
+            margin: 1.5rem auto 0 auto;
+            text-align: center;
+            background: none;
+            color: #6ec6ff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: 0.55rem 0;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: color 0.2s, background 0.2s;
+        }
+        .register-link:hover,
+        .register-link:focus {
+            color: #fff;
+            background: rgba(56,128,255,0.16);
+            outline: none;
+        }
+        @media (max-width: 400px) {
+            .login-glass { padding: 1.3rem 1rem 1rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="login-glass">
+    <h2>Login</h2>
+    <form th:action="@{/login}" method="post" autocomplete="on">
+        <div th:if="${param.error}" class="message error">Invalid username or password.</div>
+        <div th:if="${param.logout}" class="message success">You have been logged out.</div>
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" name="username" placeholder="Username" required />
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" placeholder="Password" required />
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <a th:href="@{/register}" class="register-link">Don't have an account? Register</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+com\clinicdata\cdms\model\User.class
+com\clinicdata\cdms\controller\AuthController.class
+com\clinicdata\cdms\CdmsApplication.class
+com\clinicdata\cdms\config\SecurityConfig.class
+com\clinicdata\cdms\repository\UserRepository.class
+com\clinicdata\cdms\controller\UserController.class

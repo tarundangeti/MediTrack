@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Lab Result</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* Base Reset */
+        *, *::before, *::after { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #161a30 0%, #2980b9 100%);
+            color: #edf7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        /* Glass card styling */
+        .lab-glass {
+            background: rgba(22, 26, 48, 0.42);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            box-shadow: 0 8px 32px 0 rgba(30,41,101,0.21);
+            backdrop-filter: blur(16px);
+            padding: 2.7rem 2.3rem 2.3rem 2.3rem;
+            width: 420px;
+            max-width: 96vw;
+            animation: fadeIn 0.7s;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: scale(.98);}
+            to   {opacity: 1; transform: scale(1);}
+        }
+        h2 {
+            color: #76b6ff;
+            font-weight: 700;
+            font-size: 1.63rem;
+            letter-spacing: 1.3px;
+            text-align: center;
+            margin: 0 0 2rem 0;
+        }
+        .visit-id {
+            color: #3791ae;
+            font-weight: 700;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.3rem;
+        }
+        label {
+            color: #bdd9ff;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.9px;
+            margin-bottom: 0.35rem;
+        }
+        input[type="text"], textarea {
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #324b87;
+            background: rgba(255,255,255,0.13);
+            color: #e9ecff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.18s, background 0.16s;
+            font-family: inherit;
+        }
+        input[type="text"]:focus, textarea:focus {
+            background: rgba(56,128,255,0.07);
+            border-color: #3880ff;
+        }
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        button[type="submit"] {
+            margin-top: 0.8rem;
+            width: 100%;
+            padding: 0.95rem;
+            background: linear-gradient(90deg, #3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.08rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(56,128,255,0.10);
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.15s;
+        }
+        button[type="submit"]:hover,
+        button[type="submit"]:active {
+            background: linear-gradient(90deg, #2a5caa 0%, #3880ff 100%);
+            transform: translateY(-2px) scale(1.02);
+        }
+        .action-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+        .lab-link {
+            display: inline-block;
+            color: #6ec6ff;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            user-select: none;
+            padding: 0.55rem 0;
+            border-radius: 10px;
+            transition: background-color 0.17s, color 0.22s;
+        }
+        .lab-link:hover,
+        .lab-link:focus {
+            color: #fff;
+            background: rgba(56,128,255,0.12);
+            outline: none;
+        }
+        @media (max-width: 480px) {
+            .lab-glass   { padding: 1.7rem 0.8rem 1.4rem 0.8rem; width: 97vw; }
+            h2           { font-size: 1.15rem; letter-spacing: .7px; }
+            .action-links { flex-direction: column; text-align: center; gap: 0.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lab-glass" role="main" aria-label="Add Lab Result">
+        <h2>
+            Add Lab Result for Visit ID: 
+            <span class="visit-id" th:text="${labResult.visit.id}">123</span>
+        </h2>
+        <form th:action="@{'/visits/' + ${labResult.visit.id} + '/lab-results/save'}"
+              th:object="${labResult}" method="post" autocomplete="off" novalidate>
+            <div class="input-group">
+                <label for="testName">Test Name:</label>
+                <input id="testName" type="text" th:field="*{testName}" required />
+            </div>
+            <div class="input-group">
+                <label for="result">Result:</label>
+                <textarea id="result" th:field="*{result}" rows="4" cols="50" required></textarea>
+            </div>
+            <button type="submit">Save</button>
+        </form>
+        <div class="action-links">
+            <a th:href="@{'/visits/' + ${labResult.visit.id} + '/lab-results'}" class="lab-link">Cancel</a>
+            <a th:href="@{/doctor/patients}" class="lab-link">Back to Patient List</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Data Entry Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* Basic Reset */
+        *, *::before, *::after { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #161a30 0%, #2980b9 100%);
+            color: #edf7ff;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        #mainContainer {
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            gap: 1.8rem;
+            padding: 2rem 1.3rem 3rem 1.3rem;
+        }
+
+        /* Sidebar */
+        aside.sidebar {
+            background: rgba(22, 26, 48, 0.42);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 32px rgba(30,41,101,0.19);
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem 1.5rem 2rem 1.5rem;
+            color: #ddd;
+            user-select: none;
+        }
+        aside.sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        aside.sidebar nav ul li {
+            display: flex;
+        }
+        aside.sidebar nav ul li a {
+            background: transparent;
+            border: none;
+            color: #bdd9ff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.9rem 1.1rem;
+            width: 100%;
+            text-align: left;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+        aside.sidebar nav ul li a svg {
+            width: 22px;
+            height: 22px;
+            fill: #6ec6ff;
+            flex-shrink: 0;
+        }
+        aside.sidebar nav ul li a:hover,
+        aside.sidebar nav ul li a:focus {
+            background-color: rgba(56,128,255,0.25);
+            color: #fff;
+            outline: none;
+        }
+        aside.sidebar nav ul li.active a {
+            background-color: #3791ae;
+            color: #fff;
+        }
+        aside.sidebar nav ul li.active a svg {
+            fill: #e0f2ff;
+        }
+        aside.sidebar footer {
+            margin-top: 2.5rem;
+        }
+        aside.sidebar footer button {
+            background: linear-gradient(90deg,#3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.7rem 1.4rem;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(56,128,255,0.16);
+            transition: background 0.3s ease;
+            user-select: none;
+        }
+        aside.sidebar footer button:hover {
+            background: linear-gradient(90deg, #2a5caa 0%, #3880ff 100%);
+        }
+
+        /* Main content */
+        main.dashboard-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        header.dashboard-header {
+            margin-bottom: 2rem;
+        }
+        header.dashboard-header h2 {
+            color: #76b6ff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            margin: 0 0 0.4rem 0;
+        }
+        header.dashboard-header .welcome-msg {
+            color: #bdd9ff;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.6rem;
+        }
+
+        /* Card style */
+        .dashboard-card {
+            background: rgba(22, 26, 48, 0.42);
+            border-radius: 18px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(14px);
+            padding: 1.8rem 1.6rem;
+            box-shadow: 0 8px 32px rgba(30,41,101,0.19);
+            color: #e0e8ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.25s ease;
+            user-select: none;
+            cursor: default;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(30,41,101,0.35);
+        }
+        .dashboard-card h3 {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #76b6ff;
+            letter-spacing: 1.2px;
+        }
+        .dashboard-card .value {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #3791ae;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.3rem;
+        }
+        .dashboard-card .subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #bdd9ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            #mainContainer {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            aside.sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding: 0.75rem 1rem;
+                border-radius: 12px;
+                margin-bottom: 1.3rem;
+                overflow-x: auto;
+            }
+            aside.sidebar nav ul {
+                flex-direction: row;
+                gap: 1.1rem;
+            }
+            aside.sidebar nav ul li a {
+                padding: 0.6rem 0.85rem;
+                font-size: 0.92rem;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            aside.sidebar footer {
+                display: none;
+            }
+        }
+        @media (max-width: 400px) {
+            .dashboard-card {
+                padding: 1.3rem 1rem;
+            }
+            header.dashboard-header h2 {
+                font-size: 1.6rem;
+            }
+            header.dashboard-header .welcome-msg {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div id="mainContainer" role="main" aria-label="Data Entry dashboard main content">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" role="navigation" aria-label="Main menu for data entry">
+            <nav>
+                <ul>
+                    <li class="active">
+                        <a href="/dataentry/dashboard" aria-current="page" tabindex="0">
+                            <!-- Dashboard SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" aria-label="Dashboard icon">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/>
+                            </svg>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/patients(from='/data-entry/dashboard')}" tabindex="0">      
+                            <!-- Patients SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" aria-label="Patients icon">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4S8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Patients
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/patients/dataentry(from='/data-entry/dashboard')}" tabindex="0">
+                        
+                            <!-- Visits SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" aria-label="Visits icon">
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                            </svg>
+                            Visits
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/dataentry/labresults" tabindex="0">
+                            <!-- Lab Results SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" aria-label="Lab results icon">
+                                <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                            </svg>
+                            Lab Results
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <footer>
+                <button id="logoutBtn" type="button" aria-label="Logout from the system">Logout</button>
+            </footer>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main" aria-live="polite">
+            <header class="dashboard-header">
+                <h2>Data Entry Dashboard</h2>
+                <div class="welcome-msg">
+                    Welcome, <span th:text="${username}">Data Entry User</span>!
+                </div>
+            </header>
+
+            <section class="dashboard-grid" aria-label="Summary cards for data entry">
+                <article class="dashboard-card" tabindex="0" aria-describedby="patients-entered-desc">
+                    <h3>Patients Entered Today</h3>
+                    <div class="value" th:text="${patientsEnteredToday}">12</div>
+                    <div class="subtitle" id="patients-entered-desc">New patient entries added today</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="visits-recorded-desc">
+                    <h3>Visits Recorded</h3>
+                    <div class="value" th:text="${visitsRecorded}">34</div>
+                    <div class="subtitle" id="visits-recorded-desc">Total patient visits entered</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="lab-results-desc">
+                    <h3>Lab Results Added</h3>
+                    <div class="value" th:text="${labResultsAdded}">56</div>
+                    <div class="subtitle" id="lab-results-desc">New lab results submitted</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="pending-assignments-desc">
+                    <h3>Pending Assignments</h3>
+                    <div class="value" th:text="${pendingAssignments}">5</div>
+                    <div class="subtitle" id="pending-assignments-desc">Items needing review or assignment</div>
+                </article>
+            </section>
+        </main>
+
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Logout button logic
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('authToken'); // Adjust as needed for your auth token
+            window.location.href = '/login';
+        });
+
+        // Sidebar navigation: toggle active state
+        const navLinks = document.querySelectorAll('aside.sidebar nav ul li a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.forEach(l => l.parentElement.classList.remove('active'));
+                link.parentElement.classList.add('active');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

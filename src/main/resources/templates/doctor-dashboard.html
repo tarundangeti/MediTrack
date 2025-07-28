@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Doctor Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* Reset and base */
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #161a30 0%, #2980b9 100%);
+            color: #edf7ff;
+            overflow-x: hidden;
+        }
+
+        /* Welcome screen overlay */
+        #welcomeOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(22, 26, 48, 0.95);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        #welcomeOverlay.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #welcomeOverlay h1 {
+            color: #76b6ff;
+            font-size: 3rem;
+            letter-spacing: 3px;
+            margin: 0 0 0.6rem 0;
+            font-weight: 700;
+        }
+        #welcomeOverlay p {
+            color: #bdd9ff;
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        /* Layout: sidebar + main */
+        #mainContainer {
+            display: none; /* Hidden initially */
+            min-height: 100vh;
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.8rem 1rem 3rem 1rem;
+            gap: 1.8rem;
+            box-sizing: border-box;
+        }
+        #mainContainer.show {
+            display: flex;
+            animation: fadeInContent 0.7s ease forwards;
+        }
+        @keyframes fadeInContent {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        /* Sidebar Styles */
+        aside.sidebar {
+            background: rgba(22, 26, 48, 0.42);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(14px);
+            box-shadow: 0 8px 32px rgba(30,41,101,0.19);
+            width: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem 1.5rem 2rem 1.5rem;
+            color: #ddd;
+            user-select: none;
+        }
+
+        aside.sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        aside.sidebar nav ul li {
+            display: flex;
+        }
+
+        aside.sidebar nav ul li button, aside.sidebar nav ul li a {
+            background: transparent;
+            border: none;
+            color: #bdd9ff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.9rem 1.1rem;
+            width: 100%;
+            text-align: left;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        aside.sidebar nav ul li button svg,
+        aside.sidebar nav ul li a svg {
+            width: 22px;
+            height: 22px;
+            fill: #6ec6ff;
+            flex-shrink: 0;
+        }
+
+        aside.sidebar nav ul li button:hover,
+        aside.sidebar nav ul li a:hover,
+        aside.sidebar nav ul li button:focus,
+        aside.sidebar nav ul li a:focus {
+            background-color: rgba(56,128,255,0.25);
+            color: #fff;
+            outline: none;
+        }
+
+        aside.sidebar nav ul li.active button,
+        aside.sidebar nav ul li.active a {
+            background-color: #3791ae;
+            color: #fff;
+        }
+        aside.sidebar nav ul li.active button svg,
+        aside.sidebar nav ul li.active a svg {
+            fill: #e0f2ff;
+        }
+
+        /* Sidebar footer */
+        aside.sidebar footer {
+            margin-top: 2.5rem;
+        }
+        aside.sidebar footer button {
+            background: linear-gradient(90deg,#3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.7rem 1.4rem;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(56,128,255,0.16);
+            transition: background 0.3s ease;
+            user-select: none;
+        }
+        aside.sidebar footer button:hover {
+            background: linear-gradient(90deg, #2a5caa 0%, #3880ff 100%);
+        }
+
+        /* Main content */
+        main.dashboard-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header.dashboard-header {
+            margin-bottom: 2rem;
+        }
+        header.dashboard-header h2 {
+            color: #76b6ff;
+            font-weight: 700;
+            letter-spacing: 2px;
+            font-size: 2rem;
+            margin: 0 0 0.4rem 0;
+        }
+        header.dashboard-header .welcome-msg {
+            color: #bdd9ff;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.6rem;
+        }
+
+        /* Card style */
+        .dashboard-card {
+            background: rgba(22, 26, 48, 0.42);
+            border-radius: 18px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(14px);
+            padding: 1.8rem 1.6rem;
+            box-shadow: 0 8px 32px rgba(30,41,101,0.19);
+            color: #e0e8ff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.25s ease;
+            cursor: default;
+            user-select: none;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(30,41,101,0.35);
+        }
+
+        .dashboard-card h3 {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #76b6ff;
+            letter-spacing: 1.2px;
+        }
+        .dashboard-card .value {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #3791ae;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.3rem;
+        }
+        .dashboard-card .subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #bdd9ff;
+            user-select: none;
+        }
+
+        /* Accessibility and focus for sidebar buttons */
+        aside.sidebar nav ul li button:focus-visible,
+        aside.sidebar nav ul li a:focus-visible {
+            outline: 2px solid #3791ae;
+            outline-offset: 2px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            #mainContainer {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            aside.sidebar {
+                width: 100%;
+                flex-direction: row;
+                padding: 0.75rem 1rem;
+                border-radius: 12px;
+                margin-bottom: 1.3rem;
+                overflow-x: auto;
+            }
+            aside.sidebar nav ul {
+                flex-direction: row;
+                gap: 1.1rem;
+            }
+            aside.sidebar nav ul li button,
+            aside.sidebar nav ul li a {
+                padding: 0.6rem 0.85rem;
+                font-size: 0.92rem;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            aside.sidebar footer {
+                display: none;
+            }
+        }
+        @media (max-width: 400px) {
+            .dashboard-card {
+                padding: 1.3rem 1rem;
+            }
+            header.dashboard-header h2 {
+                font-size: 1.6rem;
+            }
+            header.dashboard-header .welcome-msg {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Welcome Screen -->
+    <div id="welcomeOverlay" role="alert" aria-live="assertive" aria-atomic="true" aria-label="Welcome screen">
+        <h1>Welcome, Doctor!</h1>
+        <p>Loading your dashboard...</p>
+    </div>
+
+    <!-- Main Container -->
+    <div id="mainContainer" role="main" aria-label="Doctor dashboard main content">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" role="navigation" aria-label="Main menu">
+            <nav>
+                <ul>
+                    <li class="active">
+                        <button type="button" aria-current="page">
+                            <!-- Dashboard SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/>
+                            </svg>
+                            Dashboard
+                        </button>
+                    </li>
+                    <li>
+                        <a href="/patients" tabindex="0">
+                            <!-- Patients SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4S8 5.79 8 8s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Patients
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/doctor/patients" tabindex="0">
+                            <!-- Doctors SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M20 6h-2v4h2v-4zm-4 0h-2v6h2v-6zm-8 0H6v8h2V6zM4 20h16v-2H4v2z"/>
+                            </svg>
+                            Doctor
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/appointments" tabindex="0">
+                            <!-- Appointments SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                            </svg>
+                            Appointments
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/accounts" tabindex="0">
+                            <!-- Accounts SVG Icon -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            Accounts
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <footer>
+                <button id="logoutBtn" type="button" aria-label="Logout from the system">
+                    Logout
+                </button>
+            </footer>
+        </aside>
+
+        <!-- Main content -->
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <h2>Doctor Dashboard</h2>
+                <div class="welcome-msg">
+                    Welcome, <span th:text="${username}">Doctor</span>!
+                </div>
+            </header>
+
+            <section class="dashboard-grid" aria-label="Dashboard summary cards">
+                <article class="dashboard-card" tabindex="0" aria-describedby="patients-desc">
+                    <h3>Patients</h3>
+                    <div class="value" th:text="${patientsCount}">9</div>
+                    <div class="subtitle" id="patients-desc">Active Patients</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="surgeries-desc">
+                    <h3>Surgeries</h3>
+                    <div class="value" th:text="${surgeriesCount}">3</div>
+                    <div class="subtitle" id="surgeries-desc">Today’s Surgeries</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="labtests-desc">
+                    <h3>Lab Tests</h3>
+                    <div class="value" th:text="${labTestsCount}">980</div>
+                    <div class="subtitle" id="labtests-desc">This Month</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="staff-desc">
+                    <h3>Staff</h3>
+                    <div class="value" th:text="${staffCount}">296</div>
+                    <div class="subtitle" id="staff-desc">On Duty</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="earnings-desc">
+                    <h3>Total Earnings</h3>
+                    <div class="value" th:text="${totalEarnings}">$98000</div>
+                    <div class="subtitle" id="earnings-desc">This Month</div>
+                </article>
+                <article class="dashboard-card" tabindex="0" aria-describedby="discharged-desc">
+                    <h3>Discharged</h3>
+                    <div class="value" th:text="${dischargedCount}">253</div>
+                    <div class="subtitle" id="discharged-desc">This Month</div>
+                </article>
+            </section>
+        </main>
+
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const welcome = document.getElementById('welcomeOverlay');
+        const main = document.getElementById('mainContainer');
+
+        // Check and display welcome only if NOT already seen in this session
+        if (!sessionStorage.getItem('welcomeSeen')) {
+            // Show welcome splash, then dashboard after 2s
+            setTimeout(() => {
+                welcome.classList.add('hide');
+                setTimeout(() => {
+                    welcome.style.display = 'none';
+                    main.classList.add('show');
+                    // Set flag so it won't show again in this tab/session
+                    sessionStorage.setItem('welcomeSeen', '1');
+                }, 500);
+            }, 2000);
+        } else {
+            // Skip welcome, show dashboard immediately
+            welcome.style.display = 'none';
+            main.classList.add('show');
+        }
+
+        // Logout button: remove auth token & reset session flag, redirect to login page
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('authToken'); // Adjust if different storage
+            sessionStorage.removeItem('welcomeSeen'); // Optional: clear this on logout
+            window.location.href = '/login';
+        });
+
+        // Sidebar navigation button "active" state toggling (optional)
+        const navItems = document.querySelectorAll('aside.sidebar nav ul li button, aside.sidebar nav ul li a');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(i => i.parentElement.classList.remove('active'));
+                item.parentElement.classList.add('active');
+            });
+        });
+    });
+</script>
+
+
+</body>
+</html>

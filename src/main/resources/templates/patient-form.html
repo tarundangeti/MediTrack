@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Patient Form</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* Reset and base */
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #161a30 0%, #2980b9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #edf7ff;
+        }
+
+        /* Glass card container */
+        .form-glass {
+            background: rgba(22, 26, 48, 0.42);
+            box-shadow: 0 8px 32px 0 rgba(30,41,101,0.21);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.13);
+            backdrop-filter: blur(16px);
+            padding: 2.7rem 2.2rem 2rem 2.2rem;
+            width: 380px;
+            max-width: 95vw;
+            animation: fadeIn 0.7s;
+            color: #edf7ff;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(.98);}
+            to { opacity: 1; }
+        }
+
+        /* Heading */
+        h2 {
+            color: #76b6ff;
+            font-weight: 700;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 0 0 2rem 0;
+        }
+
+        /* Input group styling */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1.25rem;
+        }
+        label {
+            color: #bdd9ff;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.9px;
+            margin-bottom: 0.35rem;
+        }
+        input[type="text"],
+        input[type="date"],
+        select {
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #324b87;
+            background: rgba(255,255,255,0.13);
+            color: #e9ecff;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.18s, background 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        input[type="text"]::placeholder,
+        input[type="date"]::placeholder {
+            color: #a5bee6;
+        }
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            background: rgba(56,128,255,0.07);
+            border-color: #3880ff;
+        }
+        select {
+            cursor: pointer;
+        }
+
+        /* Submit button */
+        button[type="submit"] {
+            margin-top: 1.15rem;
+            width: 100%;
+            padding: 0.95rem;
+            background: linear-gradient(90deg, #3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.08rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(56,128,255,0.10);
+            letter-spacing: 1px;
+            transition: background 0.2s, transform 0.15s;
+        }
+        button[type="submit"]:hover,
+        button[type="submit"]:active {
+            background: linear-gradient(90deg, #2a5caa 0%, #3880ff 100%);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Back link */
+        a.back-link {
+            display: block;
+            margin-top: 1.7rem;
+            text-align: center;
+            color: #6ec6ff;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            user-select: none;
+            transition: color 0.25s ease;
+        }
+        a.back-link:hover,
+        a.back-link:focus {
+            color: #fff;
+            text-decoration: underline;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-glass" role="main" aria-label="Patient form">
+        <h2 th:text="${patient.id != null} ? 'Edit Patient' : 'Add Patient'">Add Patient</h2>
+        <form th:action="@{/patients/save}" th:object="${patient}" method="post" autocomplete="off" novalidate>
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="input-group">
+                <label for="name">Name:</label>
+                <input id="name" type="text" th:field="*{name}" placeholder="Enter patient name" required />
+            </div>
+
+            <div class="input-group">
+                <label for="gender">Gender:</label>
+                <select id="gender" th:field="*{gender}" required>
+                    <option value="" disabled th:selected="${patient.gender == null}">Select Gender</option>
+                    <option value="MALE" th:selected="${patient.gender == 'MALE'}">Male</option>
+                    <option value="FEMALE" th:selected="${patient.gender == 'FEMALE'}">Female</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="dateOfBirth">Date of Birth:</label>
+                <input id="dateOfBirth" type="date" th:field="*{dateOfBirth}" required />
+            </div>
+
+            <div class="input-group">
+                <label for="contact">Contact:</label>
+                <input id="contact" type="text" th:field="*{contact}" placeholder="Enter contact info" />
+            </div>
+
+            <div class="input-group">
+                <label for="diagnosis">Diagnosis:</label>
+                <input id="diagnosis" type="text" th:field="*{diagnosis}" placeholder="Enter diagnosis" />
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+        <a th:href="@{/patients}" class="back-link" aria-label="Back to patient list">Back to list</a>
+    </div>
+</body>
+</html>

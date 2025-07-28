@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Patient List</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        /* Reset */
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0; padding: 0; min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #161a30 0%, #2980b9 100%);
+            color: #edf7ff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 2.5rem 1rem 4rem 1rem;
+        }
+        .container {
+            background: rgba(22, 26, 48, 0.42);
+            border-radius: 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.13);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(30,41,101,0.21);
+            width: 100%;
+            max-width: 1100px;
+            padding: 2rem 2.8rem 3rem 2.8rem;
+            box-sizing: border-box;
+            animation: fadeIn 0.7s ease forwards;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: scale(0.98);}
+            to {opacity: 1; transform: scale(1);}
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0 0 2rem 0;
+            color: #76b6ff;
+            font-size: 2rem;
+        }
+
+        /* Back to Dashboard link styling */
+        .back-dashboard-link {
+            margin-bottom: 1rem;
+            display: inline-block;
+            font-weight: 600;
+            color: #6ec6ff;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.25s ease;
+        }
+        .back-dashboard-link:hover,
+        .back-dashboard-link:focus {
+            color: #fff;
+            text-decoration: underline;
+            outline: none;
+        }
+
+        /* Search form styling */
+        form.search-form {
+            display: flex;
+            max-width: 400px;
+            margin: 0 auto 2.5rem auto;
+            gap: 0.7rem;
+        }
+        form.search-form input[type="text"] {
+            flex-grow: 1;
+            padding: 0.65rem 1rem;
+            border-radius: 10px;
+            border: 1px solid #324b87;
+            background: rgba(255,255,255,0.13);
+            color: #e9ecff;
+            font-size: 1rem;
+            outline: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        form.search-form input[type="text"]::placeholder {
+            color: #a5bee6;
+        }
+        form.search-form input[type="text"]:focus {
+            background: rgba(56,128,255,0.07);
+            border-color: #3880ff;
+        }
+        form.search-form button {
+            padding: 0 1.4rem;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(90deg,#3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(56,128,255,0.15);
+            transition: background 0.25s;
+        }
+        form.search-form button:hover,
+        form.search-form button:active {
+            background: linear-gradient(90deg,#2a5caa 0%, #3880ff 100%);
+        }
+
+        /* Add Patient link as a button */
+        a.add-patient-link {
+            display: inline-block;
+            background: linear-gradient(90deg,#3791ae 0%, #3880ff 65%, #1d60a8 100%);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            padding: 0.7rem 1.6rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(56,128,255,0.20);
+            transition: background 0.3s ease;
+            margin-bottom: 1.8rem;
+            float: right;
+        }
+        a.add-patient-link:hover,
+        a.add-patient-link:focus {
+            background: linear-gradient(90deg,#2a5caa 0%, #3880ff 100%);
+            outline: none;
+        }
+
+        /* Clear float after container header */
+        .container::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.07);
+            user-select: none;
+        }
+        thead tr {
+            background-color: rgba(56,128,255,0.25);
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: 600;
+            color: #d0e1ff;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+        th {
+            letter-spacing: 1.3px;
+            font-size: 0.95rem;
+            user-select: none;
+        }
+        tbody tr:hover {
+            background-color: rgba(56,128,255,0.16);
+        }
+
+        /* Links in table (View/Edit/Delete/Assign) */
+        td a {
+            color: #77baff;
+            font-weight: 600;
+            text-decoration: none;
+            margin-right: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        td a:hover,
+        td a:focus {
+            color: #c7e0ff;
+            text-decoration: underline;
+            outline: none;
+        }
+
+        /* Confirm on delete link */
+        td a[onclick] {
+            color: #ff6b6b;
+        }
+        td a[onclick]:hover,
+        td a[onclick]:focus {
+            color: #ff3b3b;
+            text-decoration: underline;
+        }
+
+        /* Responsive Table for small screens */
+        @media (max-width: 800px) {
+            .container {
+                padding: 1.5rem 1.5rem 2rem 1.5rem;
+            }
+            form.search-form {
+                max-width: 100%;
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            a.add-patient-link {
+                float: none;
+                display: block;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }
+            table, thead, tbody, th, td, tr {
+                display: block;
+                width: 100%;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tbody tr {
+                margin-bottom: 1.4rem;
+                background: rgba(56,128,255,0.1);
+                border-radius: 14px;
+                padding: 1.2rem;
+                box-shadow: 0 3px 12px rgba(30,41,101,0.10);
+                transition: background-color 0.2s ease;
+            }
+            tbody tr:hover {
+                background-color: rgba(56,128,255,0.15);
+            }
+            td {
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                text-align: right;
+                font-weight: 600;
+                color: #d0e1ff;
+                margin-bottom: 0.7rem;
+            }
+            td:last-child {
+                margin-bottom: 0;
+            }
+            td a {
+                margin-right: 1rem;
+            }
+            td::before {
+                position: absolute;
+                top: 50%;
+                left: 1.2rem;
+                transform: translateY(-50%);
+                font-weight: 700;
+                color: #76b6ff;
+                white-space: nowrap;
+                font-size: 0.9rem;
+            }
+            td:nth-of-type(1)::before { content: "Name"; }
+            td:nth-of-type(2)::before { content: "Gender"; }
+            td:nth-of-type(3)::before { content: "DOB"; }
+            td:nth-of-type(4)::before { content: "Contact"; }
+            td:nth-of-type(5)::before { content: "Doctor"; }
+            td:nth-of-type(6)::before { content: "Assigned To"; }
+            td:nth-of-type(7)::before { content: "Actions"; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" role="main" aria-label="Patient List">
+    <h2>All Patients</h2>
+
+    <!-- Dynamic Back to Dashboard Link -->
+    <a th:href="${from != null} ? ${from} : '/doctor/dashboard'"
+       class="back-dashboard-link" 
+       aria-label="Back to Dashboard">
+       ← Back to Dashboard
+    </a>
+
+    <form class="search-form" method="get" th:action="@{/patients}" role="search" aria-label="Search patients by name">
+        <input type="text" name="keyword" placeholder="Search by name" th:value="${keyword}" aria-label="Patient name search input" />
+        <button type="submit" aria-label="Submit patient search">Search</button>
+    </form>
+
+    <a th:href="@{/patients/add}" class="add-patient-link">+ Add Patient</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Gender</th>
+                <th scope="col">DOB</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Doctor</th>
+                <th scope="col">Assigned To</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="patient : ${patients}">
+                <td th:text="${patient.name}">Name</td>
+                <td th:text="${patient.gender}">Gender</td>
+                <td th:text="${patient.dateOfBirth}">DOB</td>
+                <td th:text="${patient.contact}">Contact</td>
+                <td th:text="${patient.assignedDoctor}">Doctor</td>
+                <td th:text="${patient.assignedTo != null ? patient.assignedTo.username : 'Not Assigned'}">Assigned To</td>
+                <td>
+                    <a th:href="@{'/patients/view/' + ${patient.id}}" aria-label="View patient details">View</a>
+                    <a th:href="@{'/patients/edit/' + ${patient.id}}" aria-label="Edit patient details">Edit</a>
+                    <a th:href="@{'/patients/delete/' + ${patient.id}}"
+                       onclick="return confirm('Are you sure?');"
+                       aria-label="Delete patient"
+                       role="button">Delete</a>
+                    <span sec:authorize="hasRole('ADMIN')">
+                        | <a th:href="@{'/patients/' + ${patient.id} + '/assign'}" aria-label="Assign patient to personnel">Assign</a>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
