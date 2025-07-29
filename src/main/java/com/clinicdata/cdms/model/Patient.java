@@ -17,6 +17,10 @@ public class Patient {
     private String diagnosis;
     private String assignedDoctor;
     private String age;
+    @ManyToOne
+    @JoinColumn(name = "assigned_data_entry")
+    private User assignedDataEntry;
+
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -54,5 +58,10 @@ public class Patient {
     public void setAssignedTo(User assignedTo) {
         this.assignedTo = assignedTo;
     }
+	public void setAssignedDataEntry(User dataEntryUser) {
+		// TODO Auto-generated method stub
+		this.assignedDataEntry=dataEntryUser;
+		
+	}
 
 }

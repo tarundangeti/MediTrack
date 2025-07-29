@@ -1,7 +1,10 @@
 package com.clinicdata.cdms.service;
 
 import com.clinicdata.cdms.model.Patient;
+import com.clinicdata.cdms.model.User;
 import com.clinicdata.cdms.repository.PatientRepository;
+import com.clinicdata.cdms.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,9 @@ public class PatientService {
 
     @Autowired
     private PatientRepository patientRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     // Create or update patient
     public Patient savePatient(Patient patient) {
@@ -47,4 +53,17 @@ public class PatientService {
 		// TODO Auto-generated method stub
 		return patientRepository.findByAssignedToUsername(dataEntryUsername);
 	}
+	
+
+	public void assignPatientToDataEntry(Long patientId, String dataEntryUsername) {
+		// TODO Auto-generated method stub
+	    Patient patient = getPatientById(patientId);
+	    User dataEntryUser = userRepository.findByUsername(dataEntryUsername);
+	    if (patient != null && dataEntryUser != null) {
+	        patient.setAssignedDataEntry(dataEntryUser);
+	        patientRepository.save(patient);
+	    }
+		
+	}
+
 }

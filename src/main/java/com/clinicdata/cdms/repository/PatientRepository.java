@@ -10,4 +10,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findByAssignedToUsername(String username); // ✅ Correct method for Data Entry users
 
     List<Patient> findByNameContainingIgnoreCase(String keyword);
+    
+    List<Patient> findByAssignedDataEntry_Username(String username);
+
+
 }

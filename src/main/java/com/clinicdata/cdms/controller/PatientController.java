@@ -122,27 +122,36 @@ public class PatientController {
 
     // Admin assigns patient to data entry
     @GetMapping("/{id}/assign")
+    @PreAuthorize("hasRole('ADMIN')")
     public String showAssignForm(@PathVariable Long id, Model model) {
         Patient patient = patientRepository.findById(id).orElse(null);
         List<User> dataEntryUsers = userRepository.findByRole("DATA_ENTRY");
+
+        if (patient == null) {
+            return "redirect:/patients?error=notfound";
+        }
 
         model.addAttribute("patient", patient);
         model.addAttribute("dataEntryUsers", dataEntryUsers);
         return "assign-patient";
     }
-
+    
     @PostMapping("/{id}/assign")
-    public String assignPatient(@PathVariable Long id, @RequestParam Long userId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public String assignPatient(@PathVariable("id") Long id,
+                                @RequestParam("userId") Long userId) {
         Patient patient = patientRepository.findById(id).orElse(null);
         User user = userRepository.findById(userId).orElse(null);
 
         if (patient != null && user != null) {
             patient.setAssignedTo(user);
-            patientRepository.save(patient);
+            patientRepository.save(patient);  // Persist the assignment
         }
+
         return "redirect:/patients";
     }
-    
+
+   
     @GetMapping("/dataentry")
     @PreAuthorize("hasRole('DATA_ENTRY')")
     public String dataentryPatient(@RequestParam(name = "from", required = false) String from,Authentication authentication, Model model) {
