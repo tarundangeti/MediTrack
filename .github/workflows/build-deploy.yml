@@ -26,8 +26,10 @@ jobs:
         env:
           TOMCAT_USER: ${{ secrets.TOMCAT_USER }}
           TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
-          TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }} # eg. your-server-ip or domain
+          TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }}
         run: |
           WAR_FILE=target/cdms-0.0.1-SNAPSHOT.war
-          # Deploy using Tomcat manager text API
-          curl --upload-file "$WAR_FILE" "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/yourapp&update=true"
+          echo "Deploying WAR file: $WAR_FILE"
+          ls -l target/
+          curl --upload-file "$WAR_FILE" \
+            "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/cdms-0.0.1-SNAPSHOT&update=true"
