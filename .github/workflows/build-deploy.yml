@@ -30,4 +30,4 @@ jobs:
         run: |
           WAR_FILE=target/cdms-0.0.1-SNAPSHOT.war
           # Deploy using Tomcat manager text API
-          curl --upload-file $WAR_FILE "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/yourapp&update=true"
+          curl --upload-file "$WAR_FILE" "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/yourapp&update=true"
