@@ -3,30 +3,30 @@ name: Build and Deploy to Tomcat 10
 on:
   push:
     branches:
-      - master  # or your default branch name
+      - master  # Replace with your default branch if different
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 🔄 Checkout source code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: ☕ Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
-      - name: Build WAR file using Maven
+      - name: ⚙️ Build project with Maven
         run: mvn clean package
 
-      - name: Deploy WAR to Tomcat 10 via Manager
+      - name: 🚀 Deploy WAR to Tomcat Manager
         env:
           TOMCAT_USER: ${{ secrets.TOMCAT_USER }}
           TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
-          TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }}  # e.g., 192.168.1.100 or myserver.com
+          TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }}
         run: |
           WAR_FILE=target/cdms-0.0.1-SNAPSHOT.war
 
@@ -35,7 +35,15 @@ jobs:
             exit 1
           fi
 
+          # Clean up secrets (remove newlines or special characters)
+          TOMCAT_USER=$(echo -n "$TOMCAT_USER" | tr -d '\r\n')
+          TOMCAT_PASSWORD=$(echo -n "$TOMCAT_PASSWORD" | tr -d '\r\n')
+          TOMCAT_HOST=$(echo -n "$TOMCAT_HOST" | tr -d '\r\n')
+
           echo "Deploying WAR to Tomcat Manager..."
-          curl -u "$TOMCAT_USER:$TOMCAT_PASSWORD" \
-               -T "$WAR_FILE" \
-               "http://$TOMCAT_HOST:8080/manager/text/deploy?path=/cdms&update=true"
+          DEPLOY_URL="http://${TOMCAT_HOST}:8080/manager/text/deploy?path=/cdms&update=true"
+
+          echo "→ Deploying to: $DEPLOY_URL"
+
+          curl --fail --show-error --silent -u "$TOMCAT_USER:$TOMCAT_PASSWORD" \
+               -T "$WAR_FILE" "$DEPLOY_URL"
