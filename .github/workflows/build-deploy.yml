@@ -1,1 +1,33 @@
+name: Build and Deploy to Tomcat 10
 
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build WAR file using Maven
+        run: mvn clean package
+
+      - name: Deploy WAR to Tomcat Manager
+        env:
+          TOMCAT_USER: ${{ secrets.TOMCAT_USER }}
+          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+          TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }} # eg. your-server-ip or domain
+        run: |
+          WAR_FILE=target/yourapp.war
+          # Deploy using Tomcat manager text API
+          curl --upload-file $WAR_FILE "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/yourapp&update=true"
