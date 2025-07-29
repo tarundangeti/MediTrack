@@ -3,7 +3,7 @@ name: Build and Deploy to Tomcat 10
 on:
   push:
     branches:
-      - master  # Or your default branch
+      - master  # or your main branch
 
 jobs:
   build-and-deploy:
@@ -35,14 +35,16 @@ jobs:
             exit 1
           fi
 
-          # Sanitize secrets to avoid newline issues
+          # Clean newline characters from secrets
           TOMCAT_USER=$(echo -n "$TOMCAT_USER" | tr -d '\r\n')
           TOMCAT_PASSWORD=$(echo -n "$TOMCAT_PASSWORD" | tr -d '\r\n')
           TOMCAT_HOST=$(echo -n "$TOMCAT_HOST" | tr -d '\r\n')
 
           DEPLOY_URL="http://${TOMCAT_HOST}:8080/manager/text/deploy?path=/cdms&update=true"
 
-          echo "🚀 Deploying to: $DEPLOY_URL"
+          echo "🚀 Deploying WAR to: $DEPLOY_URL"
 
-          curl --fail --show-error --silent -u "$TOMCAT_USER:$TOMCAT_PASSWORD" \
-               -T "$WAR_FILE" "$DEPLOY_URL"
+          curl --fail --show-error --silent \
+            -u "$TOMCAT_USER:$TOMCAT_PASSWORD" \
+            --upload-file "$WAR_FILE" \
+            "$DEPLOY_URL"
