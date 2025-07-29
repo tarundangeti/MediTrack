@@ -24,12 +24,13 @@ jobs:
 
       - name: Deploy WAR to Tomcat Manager
         env:
-          TOMCAT_USER: ${{ secrets.TOMCAT_USER }}
-          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
-          TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }}
+        TOMCAT_USER: ${{ secrets.TOMCAT_USER }}
+        TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+        TOMCAT_HOST: ${{ secrets.TOMCAT_HOST }}
         run: |
           WAR_FILE=target/cdms-0.0.1-SNAPSHOT.war
-          echo "Deploying WAR file"
+          echo "Deploying WAR file: $WAR_FILE"
           ls -l target/
           curl --upload-file "$WAR_FILE" \
-            "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/cdms-0.0.1-SNAPSHOT&update=true"
+          "http://$TOMCAT_USER:$TOMCAT_PASSWORD@$TOMCAT_HOST:8080/manager/text/deploy?path=/cdms-0.0.1-SNAPSHOT&update=true"
+
