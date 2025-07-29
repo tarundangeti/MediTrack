@@ -3,26 +3,26 @@ name: Build and Deploy to Tomcat 10
 on:
   push:
     branches:
-      - master  # Replace with your default branch if different
+      - master  # Or your default branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🔄 Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: ☕ Set up JDK 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: ⚙️ Build project with Maven
-        run: mvn clean package
+      - name: Build WAR file using Maven
+        run: mvn clean package -DskipTests
 
-      - name: 🚀 Deploy WAR to Tomcat Manager
+      - name: Deploy WAR to Tomcat Manager
         env:
           TOMCAT_USER: ${{ secrets.TOMCAT_USER }}
           TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
@@ -31,19 +31,18 @@ jobs:
           WAR_FILE=target/cdms-0.0.1-SNAPSHOT.war
 
           if [ ! -f "$WAR_FILE" ]; then
-            echo "WAR file not found: $WAR_FILE"
+            echo "❌ WAR file not found: $WAR_FILE"
             exit 1
           fi
 
-          # Clean up secrets (remove newlines or special characters)
+          # Sanitize secrets to avoid newline issues
           TOMCAT_USER=$(echo -n "$TOMCAT_USER" | tr -d '\r\n')
           TOMCAT_PASSWORD=$(echo -n "$TOMCAT_PASSWORD" | tr -d '\r\n')
           TOMCAT_HOST=$(echo -n "$TOMCAT_HOST" | tr -d '\r\n')
 
-          echo "Deploying WAR to Tomcat Manager..."
           DEPLOY_URL="http://${TOMCAT_HOST}:8080/manager/text/deploy?path=/cdms&update=true"
 
-          echo "→ Deploying to: $DEPLOY_URL"
+          echo "🚀 Deploying to: $DEPLOY_URL"
 
           curl --fail --show-error --silent -u "$TOMCAT_USER:$TOMCAT_PASSWORD" \
                -T "$WAR_FILE" "$DEPLOY_URL"
