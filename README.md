@@ -2,7 +2,7 @@ MediTrack
 
 A secure, role-based web application built using **Spring Boot**, **Thymeleaf**, **Spring Security**, and **MySQL** to manage clinical data including patient information, visits, and lab results.
 
-## 🚀 Featuress
+## 🚀 Featuresss
 
 - **User Authentication & Role Management**
   - Admin, Doctor, and Data Entry roles.
