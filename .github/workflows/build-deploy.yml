@@ -40,7 +40,7 @@ jobs:
           TOMCAT_PASSWORD=$(echo -n "$TOMCAT_PASSWORD" | tr -d '\r\n')
           TOMCAT_HOST=$(echo -n "$TOMCAT_HOST" | tr -d '\r\n')
 
-          DEPLOY_URL="http://${TOMCAT_HOST}:8080/manager/text/deploy?path=/cdms&update=true"
+          DEPLOY_URL="http://${TOMCAT_HOST}:8080/manager/text/deploy?path=/cdms-0.0.1-SNAPSHOT&update=true"
 
           echo "🚀 Deploying WAR to: $DEPLOY_URL"
 
